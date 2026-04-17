@@ -1,39 +1,33 @@
 import sqlite3
 
-DB_NAME = 'example.db'
+# Step 1: Connect to a database (this creates it in bank.db file)
+conn = sqlite3.connect('bank.db')
+cursor = conn.cursor()
 
+# Step 2: Create a table called 'bank_info'
+cursor.execute('''
+    CREATE TABLE bank_info (
+        id INTEGER PRIMARY KEY,
+        name TEXT;
+        account_type TEXT,
+        balance INTEGER
+    )
+''')
 
-def initialize_database():
-    connection = sqlite3.connect(DB_NAME)
-    print("Connected to the database.")
-    cursor = connection.cursor()
-    print("Cursor created.")
-    # Create a sample table
-    print("Creating table if it does not exist...")
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS students
-            (id integer primary key, 
-            name text, 
-            age integer, 
-            grade text, 
-            gpa real)
-    ''')
+# Step 3: Insert 2 bank accounts 
+cursor.execute("INSERT INTO bank_info VALUES (1, 'Maria Garcia', 'checking' , 1000)")
+cursor.execute("INSERT INTO bank_info VALUES (2, 'James Chen', 'savings' , 2000)")
 
-    print("Table created.")
+# IMPORTANT: commit your changes to save them
+conn.commit()
 
-    # Insert sample data
-    print("Inserting sample data...")
-    cursor.execute('''
-        INSERT INTO students (name, age,grade, gpa) VALUES
-        ('Alice', 16, '10th', 3.5),
-        ('Bob', 17, '11th', 3.8),
-        ('Charlie', 15, '9th', 3.2)
-    ''')
-    print("Sample data inserted.")
-    # Commit the changes and close the connection
-    print("Committing changes and closing the connection...")
-    connection.commit()
-    connection.close()
+# Step 4: Query all bank accounts and print them
+cursor.execute("SELECT * FROM bank_info")
+rows = cursor.fetchall()
 
+print("All bank accounts:")
+for row in rows:
+    print(f"  ID: {row[0]}, Name: {row[1]}, Email: {row[2]}")
 
-initialize_database()
+# Clean up
+conn.close()
