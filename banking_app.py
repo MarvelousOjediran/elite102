@@ -1,42 +1,67 @@
 import sqlite3
 
-# Connect to your database file (creates bank_info.db if it doesn't exist)
-conn = sqlite3.connect('bank_info.db')
-cursor = conn.cursor()
+def connect():
+    conn = sqlite3.connect("bank.db")
+    cursor = conn.cursor()
 
-# Create your bank_info table (matching your existing table)
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS bank_info (
-        id INTEGER PRIMARY KEY,
-        customer_name TEXT,
-        balance REAL
-    )
-''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS bank_info (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_name TEXT,
+            account_type TEXT,
+            balance REAL
+        )
+    ''')
 
-# Insert some sample data
-cursor.execute("INSERT OR REPLACE INTO bank_info VALUES (1, 'Alice Johnson', 1500.75)")
-cursor.execute("INSERT OR REPLACE INTO bank_info VALUES (2, 'Bob Smith', 3200.50)")
-conn.commit()
+    conn.commit()
+    return conn, cursor
 
 
+def main():
+    conn, cursor = connect()
 
-# You can also query everything
-cursor.execute("SELECT * FROM bank_info")
-all_rows = cursor.fetchall()
+    while True:
+        print("\n1. View account")
+        print("2. Add account")
+        print("3. Exit")
 
-print("\nComplete bank records:")
-for row in all_rows:
-    print(f"  ID: {row[0]}, Name: {row[1]}, Balance: ${row[2]}")
+        choice = input("Choose: ")
+
+        if choice == "1":
+            user_id = input("Enter ID: ")
+
+            cursor.execute(
+                "SELECT customer_name, account_type, balance FROM bank_info WHERE id = ?",
+                (user_id,)
+            )
+
+            data = cursor.fetchone()
+
+            if data:
+                print(f"\nName: {data[0]}")
+                print(f"Type: {data[1]}")
+                print(f"Balance: ${data[2]}")
+            else:
+                print("Account not found.")
+
+        elif choice == "2":
+            name = input("Name: ")
+            acc_type = input("Account type: ")
+            balance = float(input("Balance: "))
+
+            cursor.execute(
+                "INSERT INTO bank_info (customer_name, account_type, balance) VALUES (?, ?, ?)",
+                (name, acc_type, balance)
+            )
+
+            conn.commit()
+            print("Account added!")
+
+        elif choice == "3":
+            break
+
+    conn.close()
 
 
-# Query only the balance column (what you asked about earlier)
-cursor.execute("SELECT balance FROM bank_info")
-balances = cursor.fetchall()
-
-print("All bank balances:")
-for balance in balances:
-    print(f"  ${balance[0]}")    
-
-# Always close the connection
-conn.close() 
-
+if __name__ == "__main__":
+    main()

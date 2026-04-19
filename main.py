@@ -1,28 +1,34 @@
 import sqlite3
 
+def get_balance_by_id(cursor, user_id):
+    cursor.execute('SELECT balance FROM bank_info WHERE id = ?', (user_id,))
+    return cursor.fetchone()
+
 
 def main():
     connection = sqlite3.connect('bank.db')
     cursor = connection.cursor()
 
-    # Get all rows from the students table
-    print("Fetching all rows from the bank database...")
-    results = cursor.execute('''
-        SELECT * FROM bank_info
-    ''')
+    print("=== Bank CLI ===")
 
-    print("Results:")
-    for row in results:
-        print(row)
+    while True:
+        user_input = input("\nEnter account ID to view balance (or 'x' to quit): ")
 
-    # Get all students with a GPA greater than 3.5
-    print("Fetching total bank account balances")
-    results = cursor.execute('''
-        SELECT balance FROM bank_info;
-    ''')
-    print("Results:")
-    for row in results:
-        print(row)
+        if user_input.lower() == 'x':
+            print("Leaving Marvelous Bank. Thank you for visiting!")
+            break
+
+        if not user_input.isdigit():
+            print("Invalid input. Please enter a numerical ID.")
+            continue
+
+        user_id = int(user_input)
+        result = get_balance_by_id(cursor, user_id)
+
+        if result:
+            print(f"Balance for account {user_id}: ${result[0]}")
+        else:
+            print("No account found with that ID.")
 
     connection.close()
 
