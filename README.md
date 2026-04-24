@@ -11,4 +11,4 @@ A basic command-line app to manage bank accounts.
 
 1. Run the script:
    ```bash
-   python bank_app.py
+   python banking_app.py
